@@ -1,0 +1,76 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import time
+
+oat_locations = input("Enter where you would like to place the oats in the form (a,b)(c,d)(e,f): ")
+oat_locations_array = [(32,32)]
+
+for i in range(0, len(oat_locations)):
+    if oat_locations[i] == "(":
+        oat_locations_array.append((int(oat_locations[i+1]), int(oat_locations[i+3])))
+
+grid_size = 100
+colour_grid = np.zeros((grid_size, grid_size, 3), dtype = int)
+
+mold_grid = np.zeros((grid_size, grid_size), dtype = int)
+mold_grid[50,50] = 1
+mold_grid[49,49] = 1
+
+for x,y in oat_locations_array:
+    colour_grid[x,y,0] = 255
+    colour_grid[x,y,1] = 239  
+    colour_grid[x,y,2] = 212
+
+def display_grid(grid):
+    plt.imshow(grid)
+    plt.show(block=False)
+    plt.pause(0.1)
+    plt.clf()
+
+def update_grid(colour_grid, mold_grid):
+    new_colour_grid = np.copy(colour_grid)
+    new_mold_grid = np.copy(mold_grid)
+    for i in range(0, mold_grid.shape[0] - 1):
+        for j in range(0, mold_grid.shape[1] - 1):
+            live_neighbours = (
+                mold_grid[i + 1,j] 
+                + mold_grid [i - 1, j] 
+                + mold_grid[i, j + 1] 
+                + mold_grid[i, j - 1]
+                + mold_grid[i-1, j-1]
+                + mold_grid[i-1, j+1]
+                + mold_grid[i+1, j-1]
+                + mold_grid[i+1, j+1]
+                )
+            if live_neighbours >= 2 and live_neighbours <= 5:
+                new_mold_grid[i,j] = 1
+                if (i,j) in oat_locations_array:
+                    colour_grid[x,y,0] = 255
+                    colour_grid[x,y,1] = 239  
+                    colour_grid[x,y,2] = 212
+                else:
+                    new_colour_grid[i,j, 0] = 237
+                    new_colour_grid[i,j, 1] = 224
+                    new_colour_grid[i,j, 2] = 36
+            elif live_neighbours >= 6 or live_neighbours == 0:
+                new_mold_grid[i,j] = 0
+                if (i,j) in oat_locations_array:
+                    colour_grid[x,y,0] = 255
+                    colour_grid[x,y,1] = 239  
+                    colour_grid[x,y,2] = 212
+                else:
+                    new_colour_grid[i,j, 0] = 0
+                    new_colour_grid[i,j, 1] = 0
+                    new_colour_grid[i,j, 2] = 0
+            
+            
+    return new_colour_grid, new_mold_grid
+
+
+
+
+end = True
+
+while end == True:
+    display_grid(colour_grid)
+    colour_grid, mold_grid = update_grid(colour_grid, mold_grid)
