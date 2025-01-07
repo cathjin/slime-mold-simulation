@@ -148,7 +148,7 @@ def update_grid(colour_grid, mold_grid):
             non_diagonal_live_neighbours = non_diagonal_num_live_neighbours(i,j)
             live_neighbours = num_live_neighbours(i,j)
             if mold_grid[i,j] == 0:
-                if (live_neighbours == 2 or live_neighbours == 1) and items_grid[i][j] != -1:
+                if (non_diagonal_live_neighbours == 2 or non_diagonal_live_neighbours == 1) and items_grid[i][j] != -1:
                     new_mold_grid[i,j] = 1
                     if items_grid[i][j] == 1:
                         if new_mold_grid[i,j] == 1 and not((i,j) in known_oats) and (i,j) != (32,32):
@@ -157,36 +157,31 @@ def update_grid(colour_grid, mold_grid):
                         new_colour_grid[i,j, 0] = 237
                         new_colour_grid[i,j, 1] = 224
                         new_colour_grid[i,j, 2] = 36
-            elif mold_grid[i,j] == 1:
-                if live_neighbours > 6:
-                    new_mold_grid[i,j] = 0
-                    new_colour_grid[i,j,0] = 0
-                    new_colour_grid[i,j,1] = 0
-                    new_colour_grid[i,j,2] = 0
     return new_colour_grid, new_mold_grid
 
-def optimize_routes(colour_grid, mold_grid):
+def optimize_routes(colour_grid, mold_grid, index):
     new_colour_grid = np.copy(colour_grid)
     new_mold_grid = np.copy(mold_grid)
     for a in range(0, len(known_oats)):
         oatx,oaty = known_oats[a]
         for i in range(0, mold_grid.shape[0]):
             for j in range(0, mold_grid.shape[1]):
-                if num_live_neighbours(i,j) == 0:
-                    new_mold_grid[i,j] = 0
-                    new_colour_grid[i,j,0] = 0
-                    new_colour_grid[i,j,1] = 0
-                    new_colour_grid[i,j,2] = 0
-                if items_grid[i,j] == 1: 
-                    new_colour_grid[i,j, 0] = 255
-                    new_colour_grid[i,j, 1] = 239
-                    new_colour_grid[i,j, 2] = 212
-                elif mold_grid[i,j] == 1 and (distance (oatx, oaty, i, j) > distance (oatx,oaty,32,32) or distance (i,j,32,32) > distance (32, 32,oatx,oaty)
-                or distance(oatx,oaty,i,j) + distance(32,32, i,j) > distance (oatx,oaty,32,32) + 1):
-                    new_mold_grid[i,j] = 0
-                    new_colour_grid[i,j,0] = 0
-                    new_colour_grid[i,j,1] = 0
-                    new_colour_grid[i,j,2] = 0
+                if items_grid[i,j] != -1:
+                    if items_grid[i,j] == 1: 
+                        new_colour_grid[i,j, 0] = 255
+                        new_colour_grid[i,j, 1] = 239
+                        new_colour_grid[i,j, 2] = 212
+                    elif mold_grid[i,j] == 1 and (distance (oatx, oaty, i, j) > distance (oatx,oaty,32,32) or distance (i,j,32,32) > distance (32, 32,oatx,oaty)
+                    or distance(oatx,oaty,i,j) + distance(32,32, i,j) > distance (oatx,oaty,32,32) + 10):
+                        new_mold_grid[i,j] = 0
+                        new_colour_grid[i,j,0] = 0
+                        new_colour_grid[i,j,1] = 0
+                        new_colour_grid[i,j,2] = 0
+                    if items_grid[i,j] != 1 and (non_diagonal_num_live_neighbours(i,j) <= 1 or (num_live_neighbours(i,j) == 8 and index >= 1)):
+                        new_mold_grid[i,j] = 0
+                        new_colour_grid[i,j,0] = 0
+                        new_colour_grid[i,j,1] = 0
+                        new_colour_grid[i,j,2] = 0
                 
     return new_colour_grid, new_mold_grid
 
@@ -198,14 +193,17 @@ def distance(x1,y1,x2,y2):
 
 
 for i in range(0, 64):
-    display_grid(mold_grid)
+    display_grid(colour_grid)
     colour_grid, mold_grid = update_grid(colour_grid, mold_grid)
 print(mold_grid)
 
-# for i in range(0, 32):
-#     display_grid(colour_grid)
-#     colour_grid, mold_grid = optimize_routes(colour_grid, mold_grid)
-#     time.sleep(1)
+for i in range(0, 32):
+    display_grid(colour_grid)
+    time.sleep(1)
+    display_grid(mold_grid)
+    time.sleep(1)
+    colour_grid, mold_grid = optimize_routes(colour_grid, mold_grid, i)
+    
 
 
     
