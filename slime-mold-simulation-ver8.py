@@ -182,7 +182,6 @@ def list_direct_neighbours(grid, x,y):
         for j in range(-1,2):
             if x+i >= 0 and x+i < grid_size and y+j >= 0 and y+j < grid_size:
                 if i == 0 or j == 0:
-                    if grid[x+i, y+j] == grid[x,y] + 1:
                         list.append((x+i, y+j))
     return list
 def new_list_direct_neighbours(x,y):
@@ -225,10 +224,6 @@ found = False
 
 def find_path_wrapper(destination, paths):
     pathsx, pathsy = paths[0]
-    grid = np.zeros((64,64),dtype = int)
-    grid [pathsx, pathsy] = 1
-    for j in range(0, 128):
-        grid = new_update_grid(grid)
     path = find_path(grid, destination,[(pathsx,pathsy)])
     for x,y in path:
         path_grid[x,y] = 1
