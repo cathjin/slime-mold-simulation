@@ -1,0 +1,92 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import time
+import math
+
+grid = np.zeros((20,20),dtype = int)
+grid [10,10] = 1
+colour_grid = np.zeros((20,20,3), dtype=int)
+grid_size = 20
+def display_grid(grid):
+    plt.imshow(grid)
+    plt.show(block=False)
+    plt.pause(0.1)
+    plt.clf()
+    
+def direct_neighbours(x,y):
+    sum = 0
+    for i in range(-1,2):
+        for j in range(-1,2):
+            if x+i >= 0 and x+i < grid_size and y+j >= 0 and y+j < grid_size:
+                if i == 0 or j == 0:
+                    sum += grid[x+i,y+j]
+    return sum
+def max_direct_neighbours(x,y):
+    max = 0
+    for i in range(-1,2):
+        for j in range(-1,2):
+            if x+i >= 0 and x+i < grid_size and y+j >= 0 and y+j < grid_size:
+                if i == 0 or j == 0:
+                    if grid[x+i,y+j] > max:
+                        max = grid[x+i, y+j]
+    return max
+def list_direct_neighbours(x,y):
+    list = []
+    for i in range(-1,2):
+        for j in range(-1,2):
+            if x+i >= 0 and x+i < grid_size and y+j >= 0 and y+j < grid_size:
+                if i == 0 or j == 0:
+                    if grid[x+i, y+j] == grid[x,y] + 1:
+                        list.append((x+i, y+j))
+    return list
+def update_grid(grid):
+    new_grid = np.copy(grid)
+    for x in range(0,20):
+        for y in range (0,20):
+                if direct_neighbours(x,y) >= 1 and grid[x,y] == 0:
+                    new_grid[x,y] = max_direct_neighbours(x,y) + 1
+    return new_grid
+    
+for i in range(0, 32):
+    display_grid(grid)
+    grid = update_grid(grid)
+
+destination = (2,2)
+path = [(10,10)]
+
+path_grid = np.zeros((20,20),dtype = int)
+
+def neighbours_min_distance(x,y):
+    neighbours = list_direct_neighbours(x,y)
+    min_distance = grid_size**2
+    closest_index = 0
+    for i in range(0, len(neighbours)):
+        if distance(destination, neighbours[i]) < min_distance:
+            min_distance = distance(destination, neighbours[i])
+            closest_index = i
+    return closest_index
+found = False
+def find_path():
+    currentx, currenty = path[0]
+    neighbours = list_direct_neighbours(currentx, currenty)
+    closest_neighbour = neighbours[neighbours_min_distance(currentx,currenty)]
+    if closest_neighbour == destination:
+        print(path)
+        found = True
+        return path
+    else:
+        path.insert(0,closest_neighbour)
+        print(path)
+        find_path()
+
+def distance(point1, point2):
+    x1,y1 = point1
+    x2,y2 = point2
+    return math.sqrt((x1-x2)**2 + (y1-y2)**2)
+
+find_path()
+while found == False:
+    for x,y in path:
+        path_grid[x,y] = 1
+    display_grid(path_grid)
+    
