@@ -96,7 +96,6 @@ for i in range(0, len(destinations)):
     grid = np.zeros((64,64),dtype = int)
     grid [pathsx, pathsy] = 1
     for j in range(0, 128):
-        display_grid(grid)
         grid = update_grid(grid)
     paths[i] = find_path(grid, destinations[i], paths[i])
 
@@ -110,7 +109,6 @@ for i in range(0, len(destinations)):
         grid = np.zeros((64,64),dtype = int)
         grid [pathsx, pathsy] = 1
         for j in range(0, 128):
-            display_grid(grid)
             grid = update_grid(grid)
         new_paths[k] = find_path(grid, destinations[i], new_paths[k])
 print (new_paths)
